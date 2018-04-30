@@ -1,0 +1,22 @@
+{
+  "name": "archgen2",
+  "version": "0.1.0",
+  "description": "A code generation tool to reduce boiler plate coding.",
+  "main": "process.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick Suwyn",
+  "license": "ISC",
+  "dependencies": {
+    "file-system": "^2.2.2"
+  },
+  "preferGlobal": "true",
+  "bin": {
+    "archgen": "./bin/process.js"
+  },
+  "keywords": [
+    "automation", "generate", "scaffold", "archetype", "template",
+    "development", "devops", "dev", "build", "tool", "cli"
+  ]
+}
