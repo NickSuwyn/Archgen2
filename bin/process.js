@@ -13,7 +13,7 @@ loadArchetypeTemplates(archTemplates);
 buildFiles(desc, archTemplates, outputFiles);
 printFiles(outputFiles);
 
-function parseDescriptor(desc) {
+function parseDescriptor() {
   try {
     desc = JSON.parse(fs.readFileSync(fileUtil.DESCRIPTOR_PATH, 'utf8'));
   } catch (e) {
@@ -44,14 +44,20 @@ function buildFiles(desc, archTemplates, outputFiles) {
 }
 
 function printFiles(outputFiles) {
-
+  console.log(outputFiles);
+  outputFiles.forEach(file => fs.writeFileSync(file.url, file.contents));
 }
 
 function buildEntityFile(desc, file, outputFiles) {
-  file.replace(ENTITY, '');
-  desc.entities.forEach(entity => )
+  file = file.replace(ENTITY, '');
+  desc.entities.forEach(entity => buildFile(desc, file, outputFiles, entity));
 }
 
 function buildFile(desc, file, outputFiles, entity) {
-
+  let interpolation;
+  while (file.indexOf('<_') != -1) {
+    interpolation = file.substring(file.indexOf('<_'), file.indexOf('_>') + 2)
+    file = file.replace(interpolation, fileUtil.evaluateJS(interpolation.substring(2, interpolation.length - 2), desc, entity));
+  }
+  outputFiles.push(fileUtil.createOuputFileObject(file));
 }
