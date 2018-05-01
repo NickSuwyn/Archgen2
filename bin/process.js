@@ -44,8 +44,9 @@ function buildFiles(desc, archTemplates, outputFiles) {
 }
 
 function printFiles(outputFiles) {
-  console.log(outputFiles);
+  outputFiles.forEach(file => console.log(file.contents));
   outputFiles.forEach(file => fs.writeFileSync(file.url, file.contents));
+  fileUtil.printSuccess();
 }
 
 function buildEntityFile(desc, file, outputFiles) {
