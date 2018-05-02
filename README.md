@@ -8,11 +8,14 @@
 [Generating a Project from an Archetype](#usage)  
 [Tutorial](#usagetutorial)  
 [Creating Custom Archetypes](#customarchetypes)  
-Archetype Files and Structure   
-Variable Levels    
-Templating Syntax
-A2 API  
-Building a Custom Archetype Tutorial
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Archetype Files and Structure](#ca1)   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Variable Levels](#ca2)    
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Templating Syntax](#ca3)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[A2 API](#ca4)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[capFirst](#a2CapFirst)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forEntity](#a2ForEntity)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forProp](#a2ForProp)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Building a Custom Archetype Tutorial](#ca5)
 
 
 
@@ -253,6 +256,8 @@ The above interpolation block will result in an instantiation of one of each ent
 
 While you can write any JavaScript inside Archgen2's interpolation blocks, some common features, such as capitalizing the first letter of a property, or looping through an array, are far too tedious to write every time they're needed. The A2 API provides a collection of functions for these types of templating needs. Note that, when calling any of these functions you have to precede them with ```a2.```. For example: ```a2.doSomthing()```.
 
+<a name="a2CapFirst"/>
+
 #### capFirst(property)
 
 Capitalizes the first letter of a string.
@@ -265,6 +270,8 @@ Capitalizes the first letter of a string.
 
 ##### Returns
 - `String`
+
+<a name="a2ForEntity"/>
 
 #### forEntity(template, desc)
 
@@ -287,6 +294,8 @@ return a2.forEntity(e => `
   ${e.name}`, desc);
 _>
 ```
+
+<a name="a2ForPropt"/>
 
 #### forProp(template, entity)
 
