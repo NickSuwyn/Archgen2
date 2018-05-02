@@ -295,7 +295,7 @@ return a2.forEntity(e => `
 _>
 ```
 
-<a name="a2ForPropt"/>
+<a name="a2ForProp"/>
 
 #### forProp(template, entity)
 
