@@ -8,6 +8,12 @@
 [Generating a Project from an Archetype](#usage)  
 [Tutorial](#usagetutorial)  
 [Creating Custom Archetypes](#customarchetypes)  
+Archetype Files and Structure   
+Variable Levels    
+Templating Syntax
+A2 API  
+Building a Custom Archetype Tutorial
+
 
 
 <a name="why"/>
@@ -35,6 +41,8 @@ When creating custom archetypes with Archgen2 there are a few minor differences 
 ```sh
 $ npm install -g archgen2
 ```
+
+After installing Archgen2, you need to create an environment variable named ARCH_PATH and set its value to the directory where you will store your archetypes.
 
 <a name="usage"/>
 
@@ -67,12 +75,12 @@ After completing your project descriptor, run the following command to generate 
 $ archgen [archetype]
 ```
 
-Each archetype should contain a README.md that defines the variables required to generate a project from that archetype. Note that if you do not define all required variables for a given archetype, archgen will fail to create your project. To view the available archetypes visit [github.com/NickSuwyn/archgen/tree/master/bin/archetypes](https://github.com/NickSuwyn/archgen/tree/master/bin/archetypes). If you wish to build your own archetypes, or contribute archetypes to the repository, follow the section entitled *Custom Archetypes* below.
+Each archetype should contain a README.md that defines the variables required to generate a project from that archetype. Note that if you do not define all required variables for a given archetype, archgen will fail to create your project. To view the available archetypes visit [https://github.com/NickSuwyn/Archgen2-archetypes](https://github.com/NickSuwyn/Archgen2-archetypes). If you wish to build your own archetypes, or contribute archetypes to the repository, follow the section entitled *Custom Archetypes* below.
 
 <a name="usagetutorial"/>
 
-## Example of Usage Tutorial
-In this tutorial, we will use the mean-ts archetype to generate a full stack crud application that contains User, Post, and Comment entities for a social-media-like app.
+## Tutorial
+In this tutorial, we will use the mean-ts archetype to generate a full stack crud application that contains User, Post, and Comment entities for a social-media-like app. You can find the mean-ts archetype [here](https://github.com/NickSuwyn/Archgen2-archetypes). Make sure you download and add it to the directory your ARCH_PATH environment variable is pointing to.
 
 - Create new directory for your project.
 
@@ -175,21 +183,135 @@ $ archgen mean-ts
 
 ## Creating Custom Archetypes
 
+Generating projects from preexisting archetypes can be very powerful, but the real benefit of Archgen2 is the ability to create your own custom archetypes to fit your needs. The below documentation will cover what you need to know to create your own archetypes.
+
+<a name="ca1"/>
+
 ### Archetype Files and Structure
 
-Coming soon!
+An archetype is just a template that describes the structure and code that a generated project will possess. An archetype consists of text files (.txt extension) and a readme.md file inside a folder. The folder's name is the name of the archetype. Each text file denotes a file, or multiple files, that will be generated when that archetype is used.
 
-### Different Variable Levels
+There are two types of template files (the text files) in an archetype:
+- Static
+- and Entity
 
-Coming soon! //desc, entity, prop
+A static file will only be created once per project. This could be something like a configuration file, where only one is needed in a project. Even though this file is called a *static* template file, it can still access variables and make use of full JavaScript interpolation.
+
+An entity file is denoted by the <\_Entity_> tag being present, usually on the second line, in the file. And entity template file will be create once for each entity in the descriptor.json ran against the archetype.
+
+<a name="ca2"/>
+
+### Variable Levels
+
+There are three main variable levels that exist in all archetypes, and you can add more if you need. These three variables levels can be accessed directly based on what type of template file (static or entity) you call them from. The types are:
+
+- desc (descriptor)
+- entity
+- and prop
+
+The desc level variables can be accessed from anywhere in the archetype, from within both static and entity template files. These variables are properties defined directly on the root level of the descriptor.json file. Common examples include name (projectName), connectionString, and entities - but can be limitless.
+
+The entity level variable are available in any entity template file (denoted by the <\_Entity_> tag). In entity template files, the variable *entity* represents the current entity in the iteration of file creation. While you can access entity information from the desc variable in any template file, you can only use the *entity* global variable in an entity template file.
+
+The last type, prop, was a true variable level in Archgen, but is no different from any other desc variable in Archgen2. This is because of the removal of the <\_forProp_> tag. However, you can still access props dynamically through JavaScript interpolation and/or the forProp() method on the A2 API.
+
+<a name="ca3"/>
 
 ### Templating Syntax
 
-Coming soon!
+In Archgen2, template syntax has been greatly simplified. While there are still some tags such as <\_Entity\_>, everything else has been reduced to JavaScript interpolation. Anything in between an opening ```<_```  and a closing ```_>``` tag will be interpreted as JavaScript. This is known as an interpolation block.
 
-### Methods
+For example:
 
-Coming soon!
+```
+<_return desc.name_>
+```
+This will print the value of the name variable on the root level of the descriptor.json file.
+
+```
+<_return 2 * 2_>
+```
+This will print ```4```.
+
+Notice the return statement. This is needed in every interpolation block. That is because under the hood, Archgen2 wraps everything inside your iterpolation block in a function to be evaluated, and the return is what will show up when the files are rendered. You can write as many lines of JavaScript as you want, just make sure you return at the end. For example:
+
+```
+<_
+let result = '';
+for (let entity of desc.entities) {
+  result += `
+  let my${entity.name} = new ${entity.name}();`
+}
+return result;
+_>
+```
+The above interpolation block will result in an instantiation of one of each entities defined in the descriptor.json. JavaScript template literals are heavily utilized in creating archetypes. This is because it allows us to avoid all the ugly concatenation that you'd have to do with plain quotes. Note that inside of a template literal within an interpolation block, we use plain JavaScript template literal interpolation to access our variable's values. That's because as soon as you open an interpolation block with ```<_```, everything that follows until the close is pure JavaScript. So, don't try to access a descriptor variable with an interpolation block inside another interpolation block; just use JavaScript dot notation and any other JavaScript syntax that applies to whatever you are doing.
+
+<a name="ca4"/>
+
+### A2 API
+
+While you can write any JavaScript inside Archgen2's interpolation blocks, some common features, such as capitalizing the first letter of a property, or looping through an array, are far too tedious to write every time they're needed. The A2 API provides a collection of functions for these types of templating needs. Note that, when calling any of these functions you have to precede them with ```a2.```. For example: ```a2.doSomthing()```.
+
+#### capFirst(property)
+
+Capitalizes the first letter of a string.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| property | String | The string to be capitalized | &nbsp; |
+
+##### Returns
+- `String`
+
+#### forEntity(template, desc)
+
+Prints a template for each entity.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| template | Function | A function that returns the template literal to print for each entity. | &nbsp; |
+| desc | Object | The desc object that contains the entities array. | &nbsp; |
+
+##### Returns
+- `String`
+
+##### Example
+```
+<_
+return a2.forEntity(e => `
+  ${e.name}`, desc);
+_>
+```
+
+#### forProp(template, entity)
+
+Prints a template for each entity.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| template | Function | A function that returns the template literal to print for each prop. | &nbsp; |
+| entity | Object | The entity object that contains the props array. | &nbsp; |
+
+##### Returns
+- `String`
+
+##### Example
+```
+<_
+return a2.forProp(p => `
+  ${p.name}`, entity);
+_>
+```
+
+
+<a name="ca5"/>
 
 ### Building a Custom Archetype Tutorial
 
@@ -217,10 +339,12 @@ You can look at this file and see an obvious pattern - it imports each entity an
 entitymodulejs.txt:
 ```
 ./entity-module.js
-<_forEntity_>
-<_entity.name:firstCap_>: require('./entities/<_entity.name_>.js'),
-<_endForEntity_>
+<_
+return a2.forEntity(e => `
+  ${a2.capFirst(e.name)}: require('./entities/${e.name}.js'),`, desc);
+_>
 ```
+
 
 Notice that the first line is the address where the generated code will be stored, so this static file will be stored at the project root directory and will be named *entity-module.js*. The next line starts a loop that iterates over each entity, interpolates the entity name with the first letter capitalized, and then interpolates each entity name in the require path. If a user where to run a descriptor.json file, that contained 20 entities, against this archetype, it would create that line for each of the 20 entities.
 
