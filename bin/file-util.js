@@ -1,5 +1,6 @@
 const fs = require('fs');
 const a2 = require('./archetype-util');
+const api = require('./api-loader')();
 
 module.exports = {
 

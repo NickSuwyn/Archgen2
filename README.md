@@ -15,6 +15,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[capFirst](#a2CapFirst)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forEntity](#a2ForEntity)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forProp](#a2ForProp)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forEach](#a2ForEach)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Building a Custom Archetype Tutorial](#ca5)
 
 
@@ -318,6 +319,22 @@ return a2.forProp(p => `
   ${p.name}`, entity);
 _>
 ```
+
+<a name="a2ForEach"/>
+
+#### forProp(template, array)
+
+Prints a template for each element in an array.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| template | Function | A function that returns the template literal to print for each prop. | &nbsp; |
+| array | Object | The array to iterate over. | &nbsp; |
+
+##### Returns
+- `String`
 
 
 <a name="ca5"/>

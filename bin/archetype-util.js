@@ -13,5 +13,11 @@ module.exports = {
     let result = '';
     desc.entities.forEach(entity => result += template(entity));
     return result;
+  },
+
+  forEach: function(template, array) {
+    let result = '';
+    array.forEach(e => result += template(e));
+    return result;
   }
 }
