@@ -16,6 +16,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forEntity](#a2ForEntity)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forProp](#a2ForProp)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[forEach](#a2ForEach)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[External APIs](#extApis)    
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Building a Custom Archetype Tutorial](#ca5)
 
 
@@ -335,6 +336,49 @@ Prints a template for each element in an array.
 
 ##### Returns
 - `String`
+
+<a name="extApis"/>
+
+### External APIs
+The A2 API gives access to some great functions that can be used to template general projects, but it does not have functions for everything you could think of, or language specific templating. Because of this, Archgen2 has an API loader built in that will load external archetype APIs to allow use of their functions within an archetype.
+
+When you run the ```archgen``` command, it will scan your ARCH_PATH directory and look for all JavaScript files ending in ```-api.js```. Some archetypes require external archetype APIs to work, the required APIs should be listed in that archetype's README.md.
+
+To create your own external archetype API, create a JavaScript file where the name ends with ```-api.js```. Inside the file, follow the below pattern to write your own templating functions:
+
+```JavaScript
+//java-api.js
+module.exports = function(a2) {
+  return {
+
+    createGetters: function(entity) {
+      result = '';
+      entity.props.forEach(p => result += `
+        public ${p.type} get${a2.capFirst(p.name)}() {
+          return ${p.name};
+        }`);
+      return result;
+    },
+
+    anotherFunction: function() {
+      return ``;
+    },
+
+    //etc...
+
+  };
+}
+```
+
+Note that the API file will export a function that takes ```a2``` as a parameter. Archgen's API loader injects the A2 API into the external API so that the external API has access to A2's functions. The exported function then returns an object literal that consists of the functions in the API. Make sure you place the API file in your ARCH_PATH directory, then it can be used inside an archetype by calling ```api.nameOfTheApi.apiFunction()``` as seen below:
+
+```
+<_
+return api.java.createGetters(entity);
+_>
+```
+
+The ```api``` global variable is an object that has access to all the external APIs the API loader finds in the ARCH_PATH directory. Notice that the name of the API on the ```api``` variable is not the full name of the API file, it is the name with the ```-api.js``` truncated. For example: ```java-api.js``` becomes ```java```, and is accessed as follows: ```api.java```.
 
 
 <a name="ca5"/>
