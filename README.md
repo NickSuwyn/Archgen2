@@ -213,7 +213,7 @@ The desc level variables can be accessed from anywhere in the archetype, from wi
 
 The entity level variable are available in any entity template file (denoted by the <\_Entity_> tag). In entity template files, the variable *entity* represents the current entity in the iteration of file creation. While you can access entity information from the desc variable in any template file, you can only use the *entity* global variable in an entity template file.
 
-The last type, prop, was a true variable level in Archgen, but is no different from any other desc variable in Archgen2. This is because of the removal of the <\_forProp_> tag. However, you can still access props dynamically through JavaScript interpolation and/or the forProp() method on the A2 API.
+The last type, prop, was a true variable level in Archgen, but is no different from any other desc variable in Archgen2. This is because of the removal of the <\_forProp_> tag. However, you can still access props dynamically through JavaScript interpolation and/or the forProp() function on the A2 API.
 
 <a name="ca3"/>
 
@@ -336,6 +336,22 @@ module.exports = {
 
 You can look at this file and see an obvious pattern - it imports each entity and follows a common naming convention. So, let's turn it into a template that would dynamically create the file based on the entities a user defines in his/her descriptor.json:
 
+Here are two ways you could accomplish this:
+
+entitymodulejs.txt:
+```
+./entity-module.js
+<_
+let result = '';
+for (let entity of desc.entities) {
+  result += `
+  ${a2.capFirst(e.name)}: require('./entities/${e.name}.js'),`;
+}
+return result;
+_>
+```
+Or, using the A2 API:
+
 entitymodulejs.txt:
 ```
 ./entity-module.js
@@ -346,7 +362,7 @@ _>
 ```
 
 
-Notice that the first line is the address where the generated code will be stored, so this static file will be stored at the project root directory and will be named *entity-module.js*. The next line starts a loop that iterates over each entity, interpolates the entity name with the first letter capitalized, and then interpolates each entity name in the require path. If a user where to run a descriptor.json file, that contained 20 entities, against this archetype, it would create that line for each of the 20 entities.
+Notice that the first line is the address where the generated code will be stored, so this static file will be stored at the project root directory and will be named *entity-module.js*. Then we open an interpolation block and start a loop that iterates over each entity, interpolates the entity name with the first letter capitalized, and then interpolates each entity name in the require path. If a user where to run a descriptor.json file, that contained 20 entities, against this archetype, it would create that line for each of the 20 entities.
 
 Now let's take a look at the class file:
 
@@ -364,18 +380,19 @@ Simple enough; with this we would just want a separate file generated for each e
 
 entityjs.txt
 ```
-<_forEntity_>
-./entities/<_entity.name_>.js
-export default class <_entity.name:firstCap_> {
+./entities/<_return entity.name_>.js
+<_Entity_>
+export default class <_return a2.capFirst(entity.name)_> {
   constructor() {
-<_forProp_>
-    this.<_prop.name_>;
-<_endForProp_>
+<_
+return a2.forProp(p => `
+  this.${p.name};`, entity);    
+_>
   }
 }
 ```
 
-A few things to take note of: fist, notice that the first line is not the directory location that points to where the generated code will be output; that gets pushed to line two in entity template files. Line one uses ```<_forEntity_>``` to denote that it is an entity file. Secondly, notice that there is no terminating ```<_endForEntity_>``` to the first line. This is the only time a loop does not need a terminator; being at the first line tells archgen that the entire file simply needs to be generated for each entity the user defines in his/her descriptor.json. Finally, notice that the prop loop indicator and terminator (```<_forProp_>``` and ```<_endForProp_>```) are not indented at all. All loop constructs must exist on the line alone, without any other text, and must contain no leading white spaces.
+Notice the ```<_Entity_>``` tag on the second line - that means that this file will be generated for each entity defined in the entities array in the descriptor.json. That also means that we have access to the ```entity``` variable which represents the current entity the file is being generated for. We use this variable as the second parameter in the a2.forProp() function in the example above.
 
 The last step of creating the archetype would be to add a README.md that follows the structure and guidelines in the archetypes README.md file.
 
